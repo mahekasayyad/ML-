@@ -1,0 +1,141 @@
+lab 7 
+
+# Step 1: Import Libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+
+#Step 2: Load and Prepare Dataset
+from google.colab import files
+uploaded=files.upload()
+df=pd.read_csv('IRIS (1).csv')
+df.head(5)
+ #Step 3: Check Column Names
+# Print all column names to see the exact spelling
+print("Column names:", df.columns.tolist())
+
+# Step 4: Prepare Features and Target
+# Drop 'species' if it exists
+df = df.drop('species', axis=1, errors='ignore')
+
+# Features and Target
+X = df.drop('petal_length', axis=1)
+y = df['petal_length']
+# Step 5: Train-Test Split
+from sklearn.model_selection import train_test_split
+
+# 80% train, 20% test
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 6: Feature Scaling
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+
+# Step 7: Linear Regression Model
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+lr = LinearRegression()
+lr.fit(X_train, y_train)
+y_pred_lr = lr.predict(X_test)
+
+# Evaluate Linear Regression
+print("📈 Linear Regression")
+print("MSE:", mean_squared_error(y_test, y_pred_lr))
+print("R² Score:", r2_score(y_test, y_pred_lr))
+# Step 8: Random Forest Regressor
+from sklearn.ensemble import RandomForestRegressor
+
+rf = RandomForestRegressor(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+y_pred_rf = rf.predict(X_test)
+
+# Evaluate Random Forest
+print("\n🌳 Random Forest Regression")
+print("MSE:", mean_squared_error(y_test, y_pred_rf))
+print("R² Score:", r2_score(y_test, y_pred_rf))
+
+# Step 9: Plot Predictions
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10,5))
+plt.plot(y_test.values, label='Actual', marker='o')
+plt.plot(y_pred_lr, label='Linear Regression', linestyle='--')
+plt.plot(y_pred_rf, label='Random Forest', linestyle='-.')
+plt.title("Actual vs Predicted Petal Length")
+plt.xlabel("Sample")
+plt.ylabel("Petal Length")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+# 1. Lasso Regression (L1 Regularization)
+from sklearn.linear_model import Lasso
+
+lasso = Lasso(alpha=0.1)
+lasso.fit(X_train, y_train)
+y_pred_lasso = lasso.predict(X_test)
+
+print("🧹 Lasso Regression:")
+print("MSE:", mean_squared_error(y_test, y_pred_lasso))
+print("R²:", r2_score(y_test, y_pred_lasso))
+
+#2. Ridge Regression (L2 Regularization)
+from sklearn.linear_model import Ridge
+
+ridge = Ridge(alpha=1.0)
+ridge.fit(X_train, y_train)
+y_pred_ridge = ridge.predict(X_test)
+
+print("🧱 Ridge Regression:")
+print("MSE:", mean_squared_error(y_test, y_pred_ridge))
+print("R²:", r2_score(y_test, y_pred_ridge))
+
+#3. ElasticNet Regression (L1 + L2)
+from sklearn.linear_model import ElasticNet
+
+elastic = ElasticNet(alpha=0.1, l1_ratio=0.5)
+elastic.fit(X_train, y_train)
+y_pred_elastic = elastic.predict(X_test)
+
+print("🎯 ElasticNet Regression:")
+print("MSE:", mean_squared_error(y_test, y_pred_elastic))
+print("R²:", r2_score(y_test, y_pred_elastic))
+
+from sklearn.metrics import mean_squared_error, r2_score
+
+def evaluate_model(name, y_true, y_pred):
+    print(f"🔍 {name}")
+    print("MSE:", mean_squared_error(y_true, y_pred))
+    print("R² Score:", r2_score(y_true, y_pred))
+    print()
+
+evaluate_model("Linear Regression", y_test, y_pred_lr)
+evaluate_model("Ridge Regression", y_test, y_pred_ridge)
+evaluate_model("Lasso Regression", y_test, y_pred_lasso)
+evaluate_model("ElasticNet", y_test, y_pred_elastic)
+
+plt.figure(figsize=(10,6))
+plt.plot(y_test.values, label='Actual', marker='o')
+plt.plot(y_pred_lr, label='Linear')
+plt.plot(y_pred_ridge, label='Ridge')
+plt.plot(y_pred_lasso, label='Lasso')
+plt.plot(y_pred_elastic, label='ElasticNet')
+plt.legend()
+plt.title('Actual vs Predicted Petal Length')
+plt.grid(True)
+plt.show()
+
