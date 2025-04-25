@@ -1,0 +1,54 @@
+
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn_extra.cluster import KMedoids
+import matplotlib.pyplot as plt
+import seaborn as sns
+from google.colab import files
+import io
+
+
+uploaded = files.upload()
+df = pd.read_csv(io.BytesIO(uploaded[list(uploaded.keys())[0]]))
+
+
+print("Column names:", df.columns.tolist())
+
+#Drop non-numeric or unnecessary columns
+columns_to_drop = [col for col in ['Id', 'Species', 'species'] if col in df.columns]
+df_numeric = df.drop(columns=columns_to_drop, axis=1)
+
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(df_numeric)
+
+# Apply K-Medoids
+kmedoids = KMedoids(n_clusters=3, method='pam', random_state=42)
+kmedoids.fit(X_scaled)
+
+#  Add cluster labels
+df['Cluster'] = kmedoids.labels_
+
+# Plot clustering results
+plt.figure(figsize=(10, 6))
+sns.scatterplot(
+    x=X_scaled[:, 0],
+    y=X_scaled[:, 1],
+    hue=kmedoids.labels_,
+    palette='Set2',
+    s=100
+)
+plt.scatter(
+    kmedoids.cluster_centers_[:, 0],
+    kmedoids.cluster_centers_[:, 1],
+    c='red',
+    marker='X',
+    s=200,
+    label='Medoids'
+)
+plt.title('K-Medoids Clustering (Iris Dataset)')
+plt.xlabel('Feature 1 (Standardized)')
+plt.ylabel('Feature 2 (Standardized)')
+plt.legend()
+plt.grid(True)
+plt.show()
