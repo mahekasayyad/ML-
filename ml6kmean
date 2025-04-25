@@ -1,3 +1,111 @@
+lab 6
+
+#Step 1: import libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import make_moons
+from sklearn.cluster import KMeans, DBSCAN, SpectralClustering, AgglomerativeClustering
+from sklearn.decomposition import PCA
+from sklearn.metrics import silhouette_score, davies_bouldin_score
+from scipy.cluster.hierarchy import dendrogram, linkage
+#Step 2:Importing the files
+from google.colab import files
+uploaded=files.upload()
+df=pd.read_csv('IRIS (1).csv')
+df.head(5)
+
+#Step 3:Data Preprocessing
+from sklearn.preprocessing import StandardScaler
+
+# Drop the 'species' column and extract features
+X = df.drop('Species', axis=1)
+
+# Standardize the data (important for DBSCAN and Spectral Clustering)
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+#Step 4: Apply DBSCAN Clustering
+from sklearn.cluster import DBSCAN
+
+# Apply DBSCAN
+dbscan = DBSCAN(eps=0.5, min_samples=5)
+dbscan_labels = dbscan.fit_predict(X_scaled)
+
+# Add cluster labels to the dataset
+df['DBSCAN_Cluster'] = dbscan_labels
+
+from sklearn.cluster import DBSCAN
+
+# Apply DBSCAN
+dbscan = DBSCAN(eps=0.5, min_samples=5)
+dbscan_labels = dbscan.fit_predict(X_scaled)
+
+# Add cluster labels to the dataset
+df['DBSCAN_Cluster'] = dbscan_labels
+
+# Step 5: Apply Spectral Clustering
+from sklearn.cluster import SpectralClustering
+
+# Apply Spectral Clustering
+spectral = SpectralClustering(n_clusters=3, affinity='nearest_neighbors', random_state=42)
+spectral_labels = spectral.fit_predict(X_scaled)
+
+# Add cluster labels to the dataset
+df['Spectral_Cluster'] = spectral_labels
+
+#Step 6: Visualize the Clusters
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+
+# Reduce data to 2D for visualization
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+
+# Plot DBSCAN clusters
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+plt.scatter(X_pca[:, 0], X_pca[:, 1], c=dbscan_labels, cmap='viridis')
+plt.title("DBSCAN Clustering")
+plt.xlabel("PCA Component 1")
+plt.ylabel("PCA Component 2")
+
+# Plot Spectral clusters
+plt.subplot(1, 2, 2)
+plt.scatter(X_pca[:, 0], X_pca[:, 1], c=spectral_labels, cmap='rainbow')
+plt.title("Spectral Clustering")
+plt.xlabel("PCA Component 1")
+plt.ylabel("PCA Component 2")
+
+plt.show()
+
+from scipy.cluster.hierarchy import linkage, dendrogram
+import matplotlib.pyplot as plt
+
+# Optional: Use only first 30 samples for clear dendrogram
+subset = X_scaled[:30]
+linked = linkage(subset, method='ward')
+
+plt.figure(figsize=(16, 8))
+dendrogram(
+    linked,
+    leaf_rotation=90,
+    leaf_font_size=12,
+    color_threshold=10
+)
+plt.title('Hierarchical Clustering Dendrogram (First 30 Samples)', fontsize=16)
+plt.xlabel('Samples', fontsize=14)
+plt.ylabel('Distance', fontsize=14)
+plt.grid(False)
+plt.show()
+
+ #Step 8: Compare & Evaluate Clustering Performance
+from sklearn.metrics import silhouette_score
+
+print("DBSCAN Silhouette Score:", silhouette_score(X_scaled, dbscan_labels))
+print("Spectral Clustering Silhouette Score:", silhouette_score(X_scaled, spectral_labels))
+
 
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
